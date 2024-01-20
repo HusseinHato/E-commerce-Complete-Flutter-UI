@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
+import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
+
+import 'dart:convert';
 
 import '../../../components/custom_surfix_icon.dart';
 import '../../../components/form_error.dart';
@@ -14,11 +19,16 @@ class SignUpForm extends StatefulWidget {
 
 class _SignUpFormState extends State<SignUpForm> {
   final _formKey = GlobalKey<FormState>();
-  String? email;
-  String? password;
-  String? conform_password;
-  bool remember = false;
+
+  TextEditingController email = TextEditingController();
+  TextEditingController pass = TextEditingController();
+
+  bool? remember = false;
   final List<String?> errors = [];
+
+  String? conform_password;
+
+  bool? success;
 
   void addError({String? error}) {
     if (!errors.contains(error)) {
@@ -36,6 +46,44 @@ class _SignUpFormState extends State<SignUpForm> {
     }
   }
 
+  Future<void> register() async {
+    var url = Uri.http("10.10.30.122", '/mobile/register.php', {'q': '{http}'});
+
+    try {
+      var response = await http.post(url, body: {
+        "email": email.text,
+        "password": pass.text,
+      });
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+
+        if (data.toString() == "Success") {
+          Navigator.pushNamed(context, SignInScreen.routeName);
+        } else {
+          showErrorMessage('User already exist');
+        }
+      } else {
+        // Handle non-200 status code
+        showErrorMessage('Failed to connect to the server');
+      }
+    } catch (error) {
+      // Handle other errors
+      showErrorMessage('An error occurred: $error');
+    }
+  }
+
+  void showErrorMessage(String message) {
+    Fluttertoast.showToast(
+        backgroundColor: Colors.deepOrange,
+        textColor: Colors.white,
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        timeInSecForIosWeb: 1,
+        gravity: ToastGravity.CENTER
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -43,8 +91,9 @@ class _SignUpFormState extends State<SignUpForm> {
       child: Column(
         children: [
           TextFormField(
+            controller: email,
             keyboardType: TextInputType.emailAddress,
-            onSaved: (newValue) => email = newValue,
+            onSaved: (newValue) => email = newValue as TextEditingController,
             onChanged: (value) {
               if (value.isNotEmpty) {
                 removeError(error: kEmailNullError);
@@ -74,15 +123,16 @@ class _SignUpFormState extends State<SignUpForm> {
           ),
           const SizedBox(height: 20),
           TextFormField(
+            controller: pass,
             obscureText: true,
-            onSaved: (newValue) => password = newValue,
+            onSaved: (newValue) => pass = newValue as TextEditingController,
             onChanged: (value) {
               if (value.isNotEmpty) {
                 removeError(error: kPassNullError);
               } else if (value.length >= 8) {
                 removeError(error: kShortPassError);
               }
-              password = value;
+              return;
             },
             validator: (value) {
               if (value!.isEmpty) {
@@ -110,16 +160,16 @@ class _SignUpFormState extends State<SignUpForm> {
             onChanged: (value) {
               if (value.isNotEmpty) {
                 removeError(error: kPassNullError);
-              } else if (value.isNotEmpty && password == conform_password) {
+              } else if (value.isNotEmpty && pass.text == conform_password) {
                 removeError(error: kMatchPassError);
               }
-              conform_password = value;
+              return;
             },
             validator: (value) {
               if (value!.isEmpty) {
                 addError(error: kPassNullError);
                 return "";
-              } else if ((password != value)) {
+              } else if ((pass.text != value)) {
                 addError(error: kMatchPassError);
                 return "";
               }
@@ -138,11 +188,11 @@ class _SignUpFormState extends State<SignUpForm> {
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
+              // if (_formKey.currentState!.validate()) {
+              //   _formKey.currentState!.save();
                 // if all are valid then go to success screen
-                Navigator.pushNamed(context, CompleteProfileScreen.routeName);
-              }
+                register();
+              // }
             },
             child: const Text("Continue"),
           ),

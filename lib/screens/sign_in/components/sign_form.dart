@@ -1,4 +1,10 @@
+// ignore_for_file: use_build_context_synchronously
+
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../components/custom_surfix_icon.dart';
 import '../../../components/form_error.dart';
@@ -16,10 +22,14 @@ class SignForm extends StatefulWidget {
 
 class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
-  String? email;
-  String? password;
+
+  TextEditingController email = TextEditingController();
+  TextEditingController pass = TextEditingController();
+
   bool? remember = false;
   final List<String?> errors = [];
+
+  bool? success;
 
   void addError({String? error}) {
     if (!errors.contains(error)) {
@@ -37,112 +47,151 @@ class _SignFormState extends State<SignForm> {
     }
   }
 
+  Future<void> login() async {
+    var url = Uri.http("10.10.30.122", '/mobile/login.php', {'q': '{http}'});
+
+    try {
+      var response = await http.post(url, body: {
+        "email": email.text,
+        "password": pass.text,
+      });
+
+      if (response.statusCode == 200) {
+        var data = json.decode(response.body);
+
+        if (data.toString() == "Success") {
+          Navigator.pushNamed(context, LoginSuccessScreen.routeName);
+        } else {
+          showErrorMessage('Username or password invalid');
+        }
+      } else {
+        // Handle non-200 status code
+        showErrorMessage('Failed to connect to the server');
+      }
+    } catch (error) {
+      // Handle other errors
+      showErrorMessage('An error occurred: $error');
+    }
+  }
+
+  void showErrorMessage(String message) {
+    Fluttertoast.showToast(
+      backgroundColor: Colors.deepOrange,
+      textColor: Colors.white,
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      timeInSecForIosWeb: 1,
+      gravity: ToastGravity.CENTER
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          TextFormField(
-            keyboardType: TextInputType.emailAddress,
-            onSaved: (newValue) => email = newValue,
-            onChanged: (value) {
-              if (value.isNotEmpty) {
-                removeError(error: kEmailNullError);
-              } else if (emailValidatorRegExp.hasMatch(value)) {
-                removeError(error: kInvalidEmailError);
-              }
-              return;
-            },
-            validator: (value) {
-              if (value!.isEmpty) {
-                addError(error: kEmailNullError);
-                return "";
-              } else if (!emailValidatorRegExp.hasMatch(value)) {
-                addError(error: kInvalidEmailError);
-                return "";
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              labelText: "Email",
-              hintText: "Enter your email",
-              // If  you are using latest version of flutter then lable text and hint text shown like this
-              // if you r using flutter less then 1.20.* then maybe this is not working properly
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
-            ),
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            obscureText: true,
-            onSaved: (newValue) => password = newValue,
-            onChanged: (value) {
-              if (value.isNotEmpty) {
-                removeError(error: kPassNullError);
-              } else if (value.length >= 8) {
-                removeError(error: kShortPassError);
-              }
-              return;
-            },
-            validator: (value) {
-              if (value!.isEmpty) {
-                addError(error: kPassNullError);
-                return "";
-              } else if (value.length < 8) {
-                addError(error: kShortPassError);
-                return "";
-              }
-              return null;
-            },
-            decoration: const InputDecoration(
-              labelText: "Password",
-              hintText: "Enter your password",
-              // If  you are using latest version of flutter then lable text and hint text shown like this
-              // if you r using flutter less then 1.20.* then maybe this is not working properly
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
+        key: _formKey,
+        child: Column(
             children: [
-              Checkbox(
-                value: remember,
-                activeColor: kPrimaryColor,
+              TextFormField(
+                controller: email,
+                keyboardType: TextInputType.emailAddress,
+                onSaved: (newValue) => email = newValue as TextEditingController,
                 onChanged: (value) {
-                  setState(() {
-                    remember = value;
-                  });
+                  if (value.isNotEmpty) {
+                    removeError(error: kEmailNullError);
+                  } else if (emailValidatorRegExp.hasMatch(value)) {
+                    removeError(error: kInvalidEmailError);
+                  }
+                  return;
                 },
-              ),
-              const Text("Remember me"),
-              const Spacer(),
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(
-                    context, ForgotPasswordScreen.routeName),
-                child: const Text(
-                  "Forgot Password",
-                  style: TextStyle(decoration: TextDecoration.underline),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    addError(error: kEmailNullError);
+                    return "";
+                  } else if (!emailValidatorRegExp.hasMatch(value)) {
+                    addError(error: kInvalidEmailError);
+                    return "";
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  labelText: "Email",
+                  hintText: "Enter your email",
+                  // If  you are using latest version of flutter then lable text and hint text shown like this
+                  // if you r using flutter less then 1.20.* then maybe this is not working properly
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Mail.svg"),
                 ),
-              )
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: pass,
+                obscureText: true,
+                onSaved: (newValue) => pass = newValue as TextEditingController,
+                onChanged: (value) {
+                  if (value.isNotEmpty) {
+                    removeError(error: kPassNullError);
+                  } else if (value.length >= 8) {
+                    removeError(error: kShortPassError);
+                  }
+                  return;
+                },
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    addError(error: kPassNullError);
+                    return "";
+                  } else if (value.length < 8) {
+                    addError(error: kShortPassError);
+                    return "";
+                  }
+                  return null;
+                },
+                decoration: const InputDecoration(
+                  labelText: "Password",
+                  hintText: "Enter your password",
+                  // If  you are using latest version of flutter then lable text and hint text shown like this
+                  // if you r using flutter less then 1.20.* then maybe this is not working properly
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Checkbox(
+                    value: remember,
+                    activeColor: kPrimaryColor,
+                    onChanged: (value) {
+                      setState(() {
+                        remember = value;
+                      });
+                    },
+                  ),
+                  const Text("Remember me"),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(
+                        context, ForgotPasswordScreen.routeName),
+                    child: const Text(
+                      "Forgot Password",
+                      style: TextStyle(decoration: TextDecoration.underline),
+                    ),
+                  )
+                ],
+              ),
+              FormError(errors: errors),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  // if (_formKey.currentState!.validate()) {
+                    // _formKey.currentState!.save();
+                    // if all are valid then go to success screen
+                    login();
+                  // }
+                },
+                child: const Text("Continue"),
+              ),
             ],
-          ),
-          FormError(errors: errors),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                // if all are valid then go to success screen
-                KeyboardUtil.hideKeyboard(context);
-                Navigator.pushNamed(context, LoginSuccessScreen.routeName);
-              }
-            },
-            child: const Text("Continue"),
-          ),
-        ],
-      ),
-    );
-  }
+            ),
+        );
+    }
 }
