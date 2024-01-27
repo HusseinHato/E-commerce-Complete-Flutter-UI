@@ -16,7 +16,7 @@ class PopularProducts extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SectionTitle(
-            title: "Popular Products",
+            title: "All Products",
             press: () {
               Navigator.pushNamed(context, ProductsScreen.routeName);
             },
@@ -24,12 +24,12 @@ class PopularProducts extends StatelessWidget {
         ),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: Row(
+          child: Column(
             children: [
               ...List.generate(
                 demoProducts.length,
                 (index) {
-                  if (demoProducts[index].isPopular) {
+                  // if (demoProducts[index].isPopular) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 20),
                       child: ProductCard(
@@ -42,10 +42,10 @@ class PopularProducts extends StatelessWidget {
                         ),
                       ),
                     );
-                  }
+                  // }
 
-                  return const SizedBox
-                      .shrink(); // here by default width and height is 0
+                  // return const SizedBox
+                  //     .shrink(); // here by default width and height is 0
                 },
               ),
               const SizedBox(width: 20),

@@ -55,20 +55,20 @@ class DetailsScreen extends StatelessWidget {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Row(
-                  children: [
-                    const Text(
-                      "4.7",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    SvgPicture.asset("assets/icons/Star Icon.svg"),
-                  ],
-                ),
+                // child: Row(
+                //   children: [
+                //     const Text(
+                //       "4.7",
+                //       style: TextStyle(
+                //         fontSize: 14,
+                //         color: Colors.black,
+                //         fontWeight: FontWeight.w600,
+                //       ),
+                //     ),
+                //     const SizedBox(width: 4),
+                //     SvgPicture.asset("assets/icons/Star Icon.svg"),
+                //   ],
+                // ),
               ),
             ],
           ),
@@ -83,13 +83,13 @@ class DetailsScreen extends StatelessWidget {
               children: [
                 ProductDescription(
                   product: product,
-                  pressOnSeeMore: () {},
+                  // pressOnSeeMore: () {},
                 ),
-                TopRoundedContainer(
-                  color: const Color(0xFFF6F7F9),
+                const TopRoundedContainer(
+                  color: Color(0xFFF6F7F9),
                   child: Column(
                     children: [
-                      ColorDots(product: product),
+                      // ColorDots(product: product),
                     ],
                   ),
                 ),

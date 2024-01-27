@@ -34,7 +34,7 @@ class CartCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              cart.product.title,
+              cart.product.name,
               style: const TextStyle(color: Colors.black, fontSize: 16),
               maxLines: 2,
             ),

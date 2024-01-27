@@ -5,6 +5,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../components/custom_surfix_icon.dart';
 import '../../../components/form_error.dart';
@@ -12,6 +14,9 @@ import '../../../constants.dart';
 import '../../../helper/keyboard.dart';
 import '../../forgot_password/forgot_password_screen.dart';
 import '../../login_success/login_success_screen.dart';
+
+final dio = Dio();
+const storage = FlutterSecureStorage();
 
 class SignForm extends StatefulWidget {
   const SignForm({super.key});
@@ -48,25 +53,31 @@ class _SignFormState extends State<SignForm> {
   }
 
   Future<void> login() async {
-    var url = Uri.http("10.10.30.122", '/mobile/login.php', {'q': '{http}'});
+    // var url = Uri.http("10.10.30.122", '/mobile/login.php', {'q': '{http}'});
 
     try {
-      var response = await http.post(url, body: {
+      final response = await dio.post('http://localhost:3000/login', data: {
         "email": email.text,
-        "password": pass.text,
+        "password": pass.text
       });
 
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
+      print(response.statusCode);
 
-        if (data.toString() == "Success") {
+      if (response.statusCode == 200) {
+        var data = response.data;
+
+        print(data);
+
+        await storage.write(key: 'jwt', value: data["token"]);
+
+        if (data["message"] == "success") {
           Navigator.pushNamed(context, LoginSuccessScreen.routeName);
-        } else {
-          showErrorMessage('Username or password invalid');
         }
-      } else {
+      } else if(response.statusCode == 400) {
         // Handle non-200 status code
-        showErrorMessage('Failed to connect to the server');
+        showErrorMessage('Invalid Credentials');
+      } else {
+        showErrorMessage("Something Wrong");
       }
     } catch (error) {
       // Handle other errors
@@ -155,29 +166,29 @@ class _SignFormState extends State<SignForm> {
                 ),
               ),
               const SizedBox(height: 20),
-              Row(
-                children: [
-                  Checkbox(
-                    value: remember,
-                    activeColor: kPrimaryColor,
-                    onChanged: (value) {
-                      setState(() {
-                        remember = value;
-                      });
-                    },
-                  ),
-                  const Text("Remember me"),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(
-                        context, ForgotPasswordScreen.routeName),
-                    child: const Text(
-                      "Forgot Password",
-                      style: TextStyle(decoration: TextDecoration.underline),
-                    ),
-                  )
-                ],
-              ),
+              // Row(
+                // children: [
+                //   Checkbox(
+                //     value: remember,
+                //     activeColor: kPrimaryColor,
+                //     onChanged: (value) {
+                //       setState(() {
+                //         remember = value;
+                //       });
+                //     },
+                //   ),
+                //   const Text("Remember me"),
+                  // const Spacer(),
+                  // GestureDetector(
+                  //   onTap: () => Navigator.pushNamed(
+                  //       context, ForgotPasswordScreen.routeName),
+                  //   child: const Text(
+                  //     "Forgot Password",
+                  //     style: TextStyle(decoration: TextDecoration.underline),
+                  //   ),
+                  // )
+                // ],
+              // ),
               FormError(errors: errors),
               const SizedBox(height: 16),
               ElevatedButton(

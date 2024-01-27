@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:shop_app/screens/sign_in/sign_in_screen.dart';
 
 import 'dart:convert';
@@ -9,6 +10,8 @@ import '../../../components/custom_surfix_icon.dart';
 import '../../../components/form_error.dart';
 import '../../../constants.dart';
 import '../../complete_profile/complete_profile_screen.dart';
+
+final dio = Dio();
 
 class SignUpForm extends StatefulWidget {
   const SignUpForm({super.key});
@@ -47,26 +50,34 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Future<void> register() async {
-    var url = Uri.http("10.10.30.122", '/mobile/register.php', {'q': '{http}'});
+    // var url = Uri.http("localhost:8080", '/user', {'q': '{http}'});
 
     try {
-      var response = await http.post(url, body: {
+      // var response = await http.post(url, body: {
+      //   "name": "User",
+      //   "email": email.text,
+      //   "password": pass.text,
+      // });
+
+      final response = await dio.post('http://localhost:3000/register', data: {
         "email": email.text,
-        "password": pass.text,
+        "password": pass.text
       });
 
-      if (response.statusCode == 200) {
-        var data = json.decode(response.body);
+      if (response.statusCode == 201) {
+        var data = response.data;
 
-        if (data.toString() == "Success") {
+        print(data);
+
           Navigator.pushNamed(context, SignInScreen.routeName);
-        } else {
-          showErrorMessage('User already exist');
-        }
-      } else {
+
+      } else if(response.statusCode == 400) {
         // Handle non-200 status code
-        showErrorMessage('Failed to connect to the server');
-      }
+        showErrorMessage('User already exist');
+        }
+        else {
+          showErrorMessage('Something Wrong');
+        }
     } catch (error) {
       // Handle other errors
       showErrorMessage('An error occurred: $error');
