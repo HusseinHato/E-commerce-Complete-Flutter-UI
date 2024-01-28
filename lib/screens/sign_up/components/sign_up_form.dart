@@ -59,7 +59,7 @@ class _SignUpFormState extends State<SignUpForm> {
       //   "password": pass.text,
       // });
 
-      final response = await dio.post('http://localhost:3000/register', data: {
+      final response = await dio.post('http://172.16.0.2:3000/register', data: {
         "email": email.text,
         "password": pass.text
       });

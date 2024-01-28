@@ -24,17 +24,17 @@ class SpecialOffers extends StatelessWidget {
           child: Row(
             children: [
               SpecialOfferCard(
-                image: "assets/images/Image Banner 2.png",
-                category: "Smartphone",
-                numOfBrands: 18,
+                // image: "assets/images/Image Banner 2.png",
+                category: "Basketball",
+                numOfBrands: 1,
                 press: () {
                   Navigator.pushNamed(context, ProductsScreen.routeName);
                 },
               ),
               SpecialOfferCard(
-                image: "assets/images/Image Banner 3.png",
-                category: "Fashion",
-                numOfBrands: 24,
+                // image: "assets/images/Image Banner 3.png",
+                category: "Football",
+                numOfBrands: 1,
                 press: () {
                   Navigator.pushNamed(context, ProductsScreen.routeName);
                 },
@@ -52,12 +52,12 @@ class SpecialOfferCard extends StatelessWidget {
   const SpecialOfferCard({
     Key? key,
     required this.category,
-    required this.image,
+    // required this.image,
     required this.numOfBrands,
     required this.press,
   }) : super(key: key);
 
-  final String category, image;
+  final String category;
   final int numOfBrands;
   final GestureTapCallback press;
 
@@ -74,22 +74,23 @@ class SpecialOfferCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
-                Image.asset(
-                  image,
-                  fit: BoxFit.cover,
-                ),
+                // Image.asset(
+                //   image,
+                //   fit: BoxFit.cover,
+                // ),
                 Container(
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.black54,
-                        Colors.black38,
-                        Colors.black26,
-                        Colors.transparent,
-                      ],
-                    ),
+                    color: Colors.blueAccent
+                    // gradient: LinearGradient(
+                    //   begin: Alignment.topCenter,
+                    //   end: Alignment.bottomCenter,
+                    //   colors: [
+                    //     Colors.black54,
+                    //     Colors.black38,
+                    //     Colors.black26,
+                    //     Colors.transparent,
+                    //   ],
+                    // ),
                   ),
                 ),
                 Padding(

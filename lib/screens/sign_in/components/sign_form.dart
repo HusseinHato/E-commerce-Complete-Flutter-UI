@@ -56,7 +56,7 @@ class _SignFormState extends State<SignForm> {
     // var url = Uri.http("10.10.30.122", '/mobile/login.php', {'q': '{http}'});
 
     try {
-      final response = await dio.post('http://localhost:3000/login', data: {
+      final response = await dio.post('http://172.16.0.2:3000/login', data: {
         "email": email.text,
         "password": pass.text
       });
@@ -69,6 +69,8 @@ class _SignFormState extends State<SignForm> {
         print(data);
 
         await storage.write(key: 'jwt', value: data["token"]);
+
+        print(await storage.read(key: 'jwt'));
 
         if (data["message"] == "success") {
           Navigator.pushNamed(context, LoginSuccessScreen.routeName);

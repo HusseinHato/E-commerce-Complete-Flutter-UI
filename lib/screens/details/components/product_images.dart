@@ -15,6 +15,8 @@ class ProductImages extends StatefulWidget {
   _ProductImagesState createState() => _ProductImagesState();
 }
 
+// Image.network("http://172.16.0.2:3000/"+product.images[0])
+
 class _ProductImagesState extends State<ProductImages> {
   int selectedImage = 0;
   @override
@@ -25,7 +27,7 @@ class _ProductImagesState extends State<ProductImages> {
           width: 238,
           child: AspectRatio(
             aspectRatio: 1,
-            child: Image.asset(widget.product.images[selectedImage]),
+            child: Image.network("http://172.16.0.2:3000/" + widget.product.images[selectedImage]),
           ),
         ),
         // SizedBox(height: 20),
@@ -74,7 +76,7 @@ class _SmallProductImageState extends State<SmallProductImage> {
       child: AnimatedContainer(
         duration: defaultDuration,
         margin: const EdgeInsets.only(right: 16),
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(2),
         height: 48,
         width: 48,
         decoration: BoxDecoration(
@@ -83,7 +85,7 @@ class _SmallProductImageState extends State<SmallProductImage> {
           border: Border.all(
               color: kPrimaryColor.withOpacity(widget.isSelected ? 1 : 0)),
         ),
-        child: Image.asset(widget.image),
+        child: Image.network("http://172.16.0.2:3000/" + widget.image),
       ),
     );
   }

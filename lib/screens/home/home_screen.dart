@@ -9,7 +9,9 @@ import 'components/special_offers.dart';
 class HomeScreen extends StatelessWidget {
   static String routeName = "/home";
 
-  const HomeScreen({super.key});
+  // const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key); // Fix super keyword
+
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
